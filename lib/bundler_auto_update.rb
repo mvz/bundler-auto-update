@@ -45,8 +45,9 @@ module Bundler
     class GemUpdater
       attr_reader :gem, :gemfile, :test_command
 
-      def initialize(gem, gemfile, test_command)
+      def initialize(gem, gemfile, test_command, command_runner: CommandRunner)
         @gem, @gemfile, @test_command = gem, gemfile, test_command
+        @command_runner = command_runner
       end
 
       # Attempt to update to patch, then to minor then to major versions.
@@ -126,6 +127,8 @@ module Bundler
 
       private
 
+      attr_reader :command_runner
+
       # Update gem version in Gemfile.
       #
       # @return true on success, false on failure.
@@ -142,7 +145,7 @@ module Bundler
       # @return true on success, false on failure
       def run_test_suite
         Logger.log_indent "Running test suite"
-        if CommandRunner.system test_command
+        if command_runner.system test_command
           Logger.log_indent "Test suite ran successfully."
           true
         else
@@ -154,11 +157,11 @@ module Bundler
       def commit_new_version
         Logger.log_indent "Committing changes"
 
-        CommandRunner.system "git commit #{files_to_commit} -m 'Auto update #{gem.name} to version #{gem.version}'"
+        command_runner.system "git commit #{files_to_commit} -m 'Auto update #{gem.name} to version #{gem.version}'"
       end
 
       def files_to_commit
-        @files_to_commit ||= if CommandRunner.system "git status | grep 'Gemfile.lock' > /dev/null"
+        @files_to_commit ||= if command_runner.system "git status | grep 'Gemfile.lock' > /dev/null"
                                "Gemfile Gemfile.lock"
                              else
                                "Gemfile"
@@ -167,7 +170,7 @@ module Bundler
 
       def revert_to_previous_version
         Logger.log_indent "Reverting changes"
-        CommandRunner.system "git checkout #{files_to_commit}"
+        command_runner.system "git checkout #{files_to_commit}"
         gemfile.reload!
       end
 
