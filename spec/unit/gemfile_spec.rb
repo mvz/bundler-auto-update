@@ -7,6 +7,7 @@ source :rubygems
 gem 'rails',  "3.0.0"
 group :test do
   gem 'shoulda-matchers' , '~> 0.9' 
+  gem 'foo', '20150102'
 end
 gem 'mysql', :git => "git://...."
 EOF
@@ -28,10 +29,10 @@ EOF
       it { is_expected.to eq([]) }
     end
 
-    context "when Gemfile contains 3 gems" do
+    context "when Gemfile contains 4 gems" do
       describe '#size' do
         subject { super().size }
-        it { is_expected.to eq(3) }
+        it { is_expected.to eq(4) }
       end
 
       describe "first gem" do
@@ -72,8 +73,27 @@ EOF
         end
       end
 
-      describe "last gem" do
+      describe "third gem" do
         subject { gemfile.gems[2] }
+
+        describe '#name' do
+          subject { super().name }
+          it { is_expected.to eq('foo') }
+        end
+
+        describe '#version' do
+          subject { super().version }
+          it { is_expected.to eq('20150102') }
+        end
+
+        describe '#options' do
+          subject { super().options }
+          it { is_expected.to be_nil }
+        end
+      end
+
+      describe "last gem" do
+        subject { gemfile.gems.last }
 
         describe '#name' do
           subject { super().name }
@@ -98,6 +118,18 @@ EOF
       gemfile.update_gem(Dependency.new('rails', '3.1.0'))
 
       expect(gemfile.content).to include(%{gem 'rails',  "3.1.0"})
+    end
+
+    it "should update the gem version when it has only two parts" do
+      gemfile.update_gem(Dependency.new('shoulda-matchers', '0.10'))
+
+      expect(gemfile.content).to include(%{gem 'shoulda-matchers' , '~> 0.10'})
+    end
+
+    it "should update the gem version when it has only one part" do
+      gemfile.update_gem(Dependency.new('foo', '20161023'))
+
+      expect(gemfile.content).to include(%{gem 'foo', '20161023'})
     end
 
     it "should write the new Gemfile" do
