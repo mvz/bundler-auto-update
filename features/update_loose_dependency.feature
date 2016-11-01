@@ -5,14 +5,14 @@ Feature: Update loose dependency
   I want Bundler AutoUpdate to check the currently locked version
 
   Background:
-    Given a file named "Gemfile" with:
+    Given a gem 'foo' at version 0.0.2
+    And a gem 'foo' at version 0.0.4
+    And a Gemfile specifying:
     """
-    source "https://rubygems.org"
-
-    gem 'dmg', '~> 0.0.2'
+    gem 'foo', '~> 0.0.2'
     """
     When I run `bundle update`
-    Then the output should contain "dmg 0.0.4"
+    Then the output should contain "foo 0.0.4"
     Then the output should contain "updated!"
     When I run `git init`
     When I run `git add .`
@@ -22,6 +22,6 @@ Feature: Update loose dependency
     When I run `bundle-auto-update -c echo Hello`
     Then the output should contain:
       """
-      Updating dmg
+      Updating foo
         - Current gem already at latest patch version. Passing this update
       """
