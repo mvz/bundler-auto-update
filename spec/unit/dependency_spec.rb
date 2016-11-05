@@ -20,4 +20,20 @@ describe Dependency do
       expect(dependency.patch).to eq('3')
     end
   end
+
+  describe '#initialize' do
+    it 'allows a version with only two parts' do
+      dep = Dependency.new 'foo', '4.2'
+      expect(dep.major).to eq '4'
+      expect(dep.minor).to eq '2'
+      expect(dep.patch).to be_nil
+    end
+
+    it 'allows a version with only one part' do
+      dep = Dependency.new 'foo', '4'
+      expect(dep.major).to eq '4'
+      expect(dep.minor).to be_nil
+      expect(dep.patch).to be_nil
+    end
+  end
 end

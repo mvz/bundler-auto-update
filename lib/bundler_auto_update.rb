@@ -114,7 +114,7 @@ module Bundler
 
       # @return true when the gem has a fixed version.
       def updatable?
-        !!(gem.version =~ /^~?>? ?\d+\.\d+(\.\d+)?$/)
+        !!(gem.version =~ /^~?>? ?\d+(\.\d+(\.\d+)?)?$/)
       end
 
       # Return an ordered array of all available versions.
@@ -241,7 +241,7 @@ module Bundler
         new_content = ""
         content.each_line do |l|
           if l =~ gem_line_regex(gem.name)
-            l.gsub!(/\d+\.\d+\.\d+/, gem.version)
+            l.gsub!(/\d+(\.\d+(\.\d+)?)?/, gem.version)
           end
 
           new_content += l
@@ -300,7 +300,7 @@ module Bundler
         @name, @version, @options = name, version, options
 
         # TODO: enhance support of > and ~> in versions
-        @major, @minor, @patch = version[/\d+\.\d+(\.\d+)?/].split('.') if version
+        @major, @minor, @patch = version[/\d+(\.\d+(\.\d+)?)?/].split('.') if version
       end
     end # class Dependency
 
